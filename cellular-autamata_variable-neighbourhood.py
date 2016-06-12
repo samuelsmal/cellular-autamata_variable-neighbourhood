@@ -2,21 +2,22 @@ from collections import Counter
 import random as rnd
 
 def run_automata(
-        number_of_cells=64,
-        number_of_steps=32,
+        number_of_cells=100,
+        number_of_steps=80,
         fire_starting_threshold=0.1,
-        size_fire_neighbourhood=1,
+        size_fire_neighbourhood=3,
         size_alive_neihbourhood=2,
         size_growing_neighbourhood=1):
     """Simulation of a forest fire using a cellular automata with variable width."""
 
     # ca_curr = [(0 if rnd.random() < 0.5 else 1) for i in range(number_of_cells)]
     ca_curr = [0]*number_of_cells
+    # ca_curr = [(1 if i % 3 == 0 else 0) for i in range(number_of_cells)]
 
-    ca_curr[0] = 2
-    ca_curr[1] = 1
-    ca_curr[2] = 1
-    ca_curr[3] = 0
+    # ca_curr[0] = 2
+    # ca_curr[1] = 1
+    # ca_curr[2] = 1
+    # ca_curr[3] = 0
     ca_curr[4] = 1
 
     ca_next = ca_curr[:]
@@ -50,27 +51,41 @@ def run_automata(
                 + ca_curr[i + 1:min(number_of_cells - 1, i + size_growing_neighbourhood + 1)]
 
             # tree alive but some sourounding tree is on fire
-            if ca_curr[i] == 1 and Counter(fire_neighbourhood)[2] > 0:
-                ca_next.append(2)
-                continue
-
-            if ca_curr[i] == 0 and sum(growing_neighbourhood) < 1:
-                ca_next.append(1)
-                continue
-
-            # Keep at least on space free, otherwise overcrowding
-            n = Counter(keeping_alive_neighbourhood)
             if ca_curr[i] == 1:
-                if n[0] > 0:
+                if sum(keeping_alive_neighbourhood) == 0:
+                    ca_next.append(0)
+                elif sum(keeping_alive_neighbourhood) < 3:
                     ca_next.append(1)
                 else:
                     ca_next.append(0)
 
                 continue
 
-            if ca_curr[i] == 2:
-                ca_next.append(0)
+            if ca_curr[i] == 0:
+                if sum(growing_neighbourhood) < 2:
+                    ca_next.append(1)
+                else:
+                    ca_next.append(0)
+
                 continue
+
+            # Keep at least on space free, otherwise overcrowding
+            # n = Counter(keeping_alive_neighbourhood)
+            # if ca_curr[i] == 1:
+                # if n[0] > 0:
+                    # ca_next.append(1)
+                # else:
+                    # if rnd.random() < 0.3:
+                        # ca_next.append(0)
+                    # else:
+                        # ca_next.append(1)
+
+                # continue
+
+            # What is dead, may never die.
+            # if ca_curr[i] == 2:
+                # ca_next.append(0)
+                # continue
 
             ca_next.append(ca_curr[i])
 
